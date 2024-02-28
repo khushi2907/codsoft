@@ -1,0 +1,39 @@
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+from google.colab import drive
+drive.mount('/content/drive')
+cc_data = pd.read_csv('/content/drive/MyDrive/internship/creditcard.csv')
+cc_data.head()
+cc_data.tail()
+cc_data.info()
+cc_data.isnull().sum()
+cc_data['Class'].value_counts()
+attested = cc_data[cc_data.Class == 0]
+fraud = cc_data[cc_data.Class == 1]
+print (attested.shape)
+print (fraud.shape)
+attested.Amount.describe()
+fraud.Amount.describe()
+cc_data.groupby('Class').mean()
+sampleOfAttested = attested.sample(n=444)
+new_data = pd.concat([sampleOfAttested,fraud],axis=0)
+new_data.head()
+new_data['Class'].value_counts()
+new_data.groupby('Class').mean()
+a= new_data.drop(columns='Class',axis=1)
+b= new_data['Class']
+print(a)
+print(b)
+a_train , a_teat , b_train , b_test =train_test_split(a,b,test_size=0.2,stratify=b,random_state=2)
+print(a.shape, a_train.shape)
+model= LogisticRegression()
+model.fit(a_train,b_train)
+a_train_prediction = model.predict(a_train)
+training_data_accuracy = accuracy_score(a_train_prediction,b_train)
+print("Accuracy on training data :",training_data_accuracy)
+a_test_prediction= model.predict(a_teat)
+test_data_accuracy= accuracy_score(a_test_prediction,b_test)
+print("Accuracy score on test data :",test_data_accuracy)
